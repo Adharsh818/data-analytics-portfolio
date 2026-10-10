@@ -25,3 +25,7 @@ desktop.ini
 
 # Generated database
 *.db
+
+# Large generated tables (rebuild with scripts/build_notebook.py)
+data/processed/*_clean.csv
+data/processed/customers_rfm.csv

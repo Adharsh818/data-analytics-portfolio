@@ -1,0 +1,63 @@
+// Olist dashboard DAX measures
+// Create a blank table called _Measures (Home > Enter data > OK) and add each measure to it.
+// Revenue and delivery measures count delivered orders only, matching the SQL and Python analysis.
+
+// ---------- Sales ----------
+Delivered Orders =
+CALCULATE ( COUNTROWS ( fact_orders ), fact_orders[is_delivered] = 1 )
+
+Total Revenue =
+CALCULATE ( SUM ( fact_orders[revenue] ), fact_orders[is_delivered] = 1 )
+
+Avg Order Value =
+DIVIDE ( [Total Revenue], [Delivered Orders] )
+
+Customers =
+CALCULATE ( DISTINCTCOUNT ( fact_orders[customer_unique_id] ), fact_orders[is_delivered] = 1 )
+
+Revenue Prev Month =
+CALCULATE ( [Total Revenue], DATEADD ( dim_date[date], -1, MONTH ) )
+
+Revenue MoM % =
+DIVIDE ( [Total Revenue] - [Revenue Prev Month], [Revenue Prev Month] )
+
+Category Revenue =
+CALCULATE ( SUM ( fact_order_items[price] ), fact_orders[is_delivered] = 1 )
+
+Cancel Rate =
+DIVIDE (
+    CALCULATE ( COUNTROWS ( fact_orders ), fact_orders[order_status] IN { "canceled", "unavailable" } ),
+    COUNTROWS ( fact_orders )
+)
+
+// ---------- Delivery & satisfaction ----------
+Avg Delivery Days =
+CALCULATE ( AVERAGE ( fact_orders[delivery_days] ), fact_orders[is_delivered] = 1 )
+
+Late Delivery % =
+CALCULATE ( AVERAGE ( fact_orders[is_late] ), fact_orders[is_delivered] = 1 )
+
+Avg Review =
+CALCULATE ( AVERAGE ( fact_orders[review_score] ), fact_orders[is_delivered] = 1 )
+
+Bad Review % =
+DIVIDE (
+    CALCULATE ( COUNTROWS ( fact_orders ), fact_orders[is_delivered] = 1, fact_orders[review_score] <= 2 ),
+    CALCULATE ( COUNTROWS ( fact_orders ), fact_orders[is_delivered] = 1, NOT ISBLANK ( fact_orders[review_score] ) )
+)
+
+// ---------- Customers ----------
+Repeat Customer % =
+VAR cust =
+    CALCULATETABLE (
+        SUMMARIZE ( fact_orders, fact_orders[customer_unique_id], "n", COUNTROWS ( fact_orders ) ),
+        fact_orders[is_delivered] = 1
+    )
+RETURN
+    DIVIDE ( COUNTROWS ( FILTER ( cust, [n] > 1 ) ), COUNTROWS ( cust ) )
+
+Segment Customers =
+CALCULATE ( COUNTROWS ( dim_customer ), dim_customer[segment] <> "No delivered order" )
+
+Segment Revenue Share =
+DIVIDE ( [Total Revenue], CALCULATE ( [Total Revenue], ALL ( dim_customer[segment] ) ) )

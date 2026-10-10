@@ -29,3 +29,4 @@ desktop.ini
 # Large generated tables (rebuild with scripts/build_notebook.py)
 data/processed/*_clean.csv
 data/processed/customers_rfm.csv
+data/processed/powerbi/

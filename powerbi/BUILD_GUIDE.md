@@ -6,7 +6,7 @@ The report has Sales, Delivery and Customers pages, 30 visuals and 14 measures.
 
 ## Open and refresh
 
-The [Power BI download](https://github.com/Adharsh818/data-analytics-portfolio/releases/download/portfolio-v1.2/olist_powerbi_dashboard.zip)
+The [Power BI download](https://github.com/Adharsh818/data-analytics-portfolio/releases/latest/download/olist_powerbi_dashboard.zip)
 includes the five prepared data tables, so you can open it without rebuilding the analysis.
 Extract the ZIP, open `powerbi/olist_dashboard.pbip`, set `DataFolder` to the extracted
 `data/processed/powerbi` folder under Transform data → Manage parameters, then apply
@@ -39,6 +39,11 @@ fact_orders[order_id] -----------< fact_order_items[order_id]
 Relationships filter from the unique side to the many side. There is no direct date
 relationship to items: date filters reach items through orders. This prevents an
 ambiguous second filter path. It is an order/item model, with dimensions on orders.
+
+The Desktop-saved model also contains two hidden auto-date helper tables and an
+automatic relationship to the item purchase date. These are Desktop-generated
+calendar helpers, separate from the five business tables and four relationships
+shown above. The report uses the explicit `dim_date` fields for its date filters.
 
 The fact tables contain all statuses **among orders that have items**. `is_delivered=1`
 means delivered with a known delivery timestamp, matching SQL, Python and Excel.
@@ -95,10 +100,11 @@ Power BI screenshots.
 ## Validation status and format references
 
 All 41 generated report/project/platform definitions pass `python scripts/validate_powerbi.py`.
-The data exports reconcile to SQL/pandas. **Power Query refresh, DAX evaluation,
-visual rendering and interactions have not been verified in Desktop** because the
-desktop automation helper failed to initialize. Complete the checks above before
-claiming a fully tested Power BI dashboard.
+The data exports reconcile to SQL/pandas. On 6 November 2026, the project owner
+confirmed that all three pages open, the charts display and baseline totals match.
+The actual Desktop screenshots are in the README. Fresh imports, unused measures
+and combined slicer/refresh scenarios still require the checks above; screenshots
+and baseline confirmation do not establish every report behaviour.
 
 The public schemas validate the file structure, not visual role semantics or DAX results.
 `model.bim` is a semantic model definition and is not included in PBIR schema validation.

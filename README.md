@@ -16,8 +16,8 @@ and understand customer purchasing behaviour?
 
 | Deliverable | Direct link | What you can explore |
 |---|---|---|
-| **Excel dashboard** | [Download Excel workbook](https://github.com/Adharsh818/data-analytics-portfolio/releases/download/portfolio-v1.2/olist_summary_reviewed.xlsx) | Sales KPIs with a state selector, monthly growth, delivery reviews and category Pareto analysis. |
-| **Power BI dashboard** | [Download Power BI package](https://github.com/Adharsh818/data-analytics-portfolio/releases/download/portfolio-v1.2/olist_powerbi_dashboard.zip) · [Opening guide](powerbi/BUILD_GUIDE.md) | Three report pages: Sales Overview, Delivery & Reviews, and Customer Purchasing. Includes the project files and five prepared data tables. |
+| **Excel dashboard** | [Download Excel workbook](https://github.com/Adharsh818/data-analytics-portfolio/releases/latest/download/olist_summary_reviewed.xlsx) | Sales KPIs with a state selector, monthly growth, delivery reviews and category Pareto analysis. |
+| **Power BI dashboard** | [Download Power BI package](https://github.com/Adharsh818/data-analytics-portfolio/releases/latest/download/olist_powerbi_dashboard.zip) · [Opening guide](powerbi/BUILD_GUIDE.md) | Three report pages: Sales Overview, Delivery & Reviews, and Customer Purchasing. Includes the project files and five prepared data tables. |
 | **Python analysis** | [View executed notebook](notebooks/olist_analysis.ipynb) | Cleaning decisions, exploratory analysis, customer segments and cohort retention, with saved outputs. |
 | **Business summary** | [Read findings and proposed actions](docs/business_summary.md) | A short explanation of the main findings, their limits and the next business questions. |
 | **SQL analysis** | [Explore SQL queries](sql/) | Sales, customers, delivery, reviews, payments and sellers. |
@@ -27,8 +27,9 @@ filters its KPI cards. For Power BI, extract the ZIP, open `powerbi/olist_dashbo
 in Desktop, set `DataFolder` to the extracted `data/processed/powerbi` folder, and refresh.
 The Power BI package is a local Desktop project, not a hosted interactive web report.
 
-**Validation:** SQL, Python and prepared data reconcile; native Excel recalculation and
-Power BI refresh/visual interactions still require Desktop checks. See
+**Validation:** SQL, Python and prepared data reconcile. The three Power BI pages open
+and render with matching baseline totals, confirmed in Desktop by the project owner.
+Fresh-refresh and filter-combination tests remain separate checks. See
 [validation details](docs/validation.md).
 
 ## At a glance
@@ -59,22 +60,22 @@ These are observations and proposed actions, not measured improvements from inte
 This is the workbook open in Excel with the state selector set to All. The selector
 filters the KPI cards; the monthly table shows all states.
 
-## Analysis previews
+## Power BI dashboard screenshots
 
-### Sales performance
+### Sales overview
 
-![Monthly merchandise sales from January 2017 through August 2018](notebooks/figures/monthly_revenue.png)
+![Power BI sales overview with revenue, orders, AOV, customer counts and category/state trends](powerbi/screenshots/sales-overview.png)
 
-### Delivery and customer reviews
+### Delivery and reviews
 
-![Average review score by delivery lateness](notebooks/figures/review_vs_lateness.png)
+![Power BI delivery and reviews page showing lateness, delivery duration, ratings and state/month comparisons](powerbi/screenshots/delivery-and-reviews.png)
 
 ### Customer purchasing
 
-![Customer and revenue share by RFM segment](notebooks/figures/rfm_segments.png)
+![Power BI customer page showing repeat purchases, RFM segments and monthly purchasing customers](powerbi/screenshots/customer-purchasing.png)
 
-These previews were generated in Python. Download the dashboard files above to explore
-the Excel and Power BI versions.
+These are actual Power BI Desktop screenshots with the visible slicers set to All.
+The executed Python notebook contains the exploratory charts and their calculations.
 
 ## Skills demonstrated
 
@@ -122,8 +123,8 @@ See the [data dictionary](docs/data_dictionary.md) for table grains and KPI defi
 
 ## What I would improve next
 
-- Complete the Excel and Power BI Desktop checks and add screenshots of the actual
-  dashboard pages. The current README previews are Python charts.
+- Test and document combined year, state and payment selections, including clearing
+  all filters and restoring the baseline.
 - Compare late-delivery and review patterns within the same product categories and
   states to explore whether the overall pattern holds across different groups.
 

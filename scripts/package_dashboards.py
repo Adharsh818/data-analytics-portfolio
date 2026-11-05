@@ -16,7 +16,8 @@ def main():
     files = [project / 'olist_dashboard.pbip', project / 'measures.dax', project / 'BUILD_GUIDE.md',
              ROOT / 'docs/data_dictionary.md', ROOT / 'docs/validation.md',
              ROOT / 'docs/validation_results.json']
-    files += sorted((project / 'Olist.Report').rglob('*.json'))
+    files += sorted(p for p in (project / 'Olist.Report').rglob('*.json')
+                    if '.pbi' not in p.relative_to(project).parts)
     files += [project / 'Olist.Report/definition.pbir',
               project / 'Olist.Report/.platform',
               project / 'Olist.SemanticModel/definition.pbism',
@@ -24,6 +25,7 @@ def main():
               project / 'Olist.SemanticModel/model.bim']
     for name in ['fact_orders', 'fact_order_items', 'dim_customer', 'dim_state', 'dim_date']:
         files.append(ROOT / f'data/processed/powerbi/{name}.csv')
+    files += sorted((project / 'screenshots').glob('*.png'))
     missing = [str(p.relative_to(ROOT)) for p in files if not p.exists()]
     if missing:
         raise SystemExit('Missing files; rebuild/export the project first: ' + ', '.join(missing))
@@ -39,9 +41,10 @@ Pages: Sales Overview, Delivery & Reviews, Customer Purchasing.
 Baseline: 96,203 delivered orders; 93,096 customers; R$13,179,777.95 merchandise sales.
 The project contains no imported data cache; the five prepared CSVs are included.
 
-SQL/pandas/export checks and report JSON schema checks passed. Native Desktop
-refresh, DAX execution and report interactions still require verification.
-This is a local Power BI project, not a hosted report or a verified PBIX.
+SQL/pandas/export checks and report JSON schema checks passed. All three pages and
+their baseline values were confirmed by the owner in Desktop. Fresh import and
+combined filter/refresh tests remain separate. Actual Desktop screenshots are included.
+This is a local Power BI project, not a hosted report or a PBIX deliverable.
 
 Source: https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce
 Project: https://github.com/Adharsh818/data-analytics-portfolio

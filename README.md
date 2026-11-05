@@ -1,82 +1,118 @@
-# Retail Sales & Delivery Analysis | Olist
+# Retail Sales & Customer Experience Analysis
 
-A personal retail analytics project using **SQL, Python, Excel and Power BI** to answer:
-**Where should an online retail team investigate sales performance and customer experience?**
+**SQL · Python · Excel · Power BI**
 
-I analysed **96,203 delivered orders**, purchased from January 2017 to August 2018, from
-Olist, a Brazilian online marketplace. The work covers data cleaning, sales reporting,
-delivery reliability, customer purchasing and seller performance.
+An end-to-end analysis of **96,203 delivered orders** from Olist, a Brazilian online
+marketplace. I explored sales trends, delivery reliability and repeat purchasing to
+identify questions a retail operations team could investigate next.
 
-This is historical public data, not a project for Target, Lowe's, 7-Eleven or Walmart.
-The transferable work is defining retail KPIs, joining transaction tables safely,
-checking results and explaining the next business decision.
+**Business question:** Where should a retail team focus to improve delivery reliability
+and understand customer purchasing behaviour?
 
-## Start here
+## Dashboards and project links
 
-- [Business summary](docs/business_summary.md): findings, priorities and proposed follow-up.
-- [Python notebook](notebooks/olist_analysis.ipynb): executed analysis with charts and explanations.
-- [Reviewed Excel workbook](excel/olist_summary_reviewed.xlsx): formulas, state selector, trends and category analysis.
-- [Power BI project](powerbi/olist_dashboard.pbip): three pages, five tables and 15 DAX measures.
-  [Open and refresh instructions](powerbi/BUILD_GUIDE.md).
-- [Validation results](docs/validation_results.json) and [review notes](docs/project_review.md).
+| Deliverable | Direct link | What you can explore |
+|---|---|---|
+| **Excel dashboard** | [Download Excel workbook](https://github.com/Adharsh818/data-analytics-portfolio/releases/download/portfolio-v1/olist_summary_reviewed.xlsx) | Sales KPIs with a state selector, monthly growth, delivery reviews and category Pareto analysis. |
+| **Power BI dashboard** | [Download Power BI package](https://github.com/Adharsh818/data-analytics-portfolio/releases/download/portfolio-v1/olist_powerbi_dashboard.zip) · [Opening guide](powerbi/BUILD_GUIDE.md) | Three report pages: Sales Overview, Delivery & Reviews, and Customer Purchasing. Includes the project files and five prepared data tables. |
+| **Python analysis** | [View executed notebook](notebooks/olist_analysis.ipynb) | Cleaning decisions, exploratory analysis, customer segments and cohort retention, with saved outputs. |
+| **Business summary** | [Read findings and proposed actions](docs/business_summary.md) | A short explanation of the main findings, their limits and the next business questions. |
+| **SQL analysis** | [Explore SQL queries](sql/) | Sales, customers, delivery, reviews, payments and sellers. |
 
-![Review scores by delivery lateness](notebooks/figures/review_vs_lateness.png)
+**Opening the dashboards:** Excel opens as an `.xlsx` file; the yellow state selector
+filters its KPI cards. For Power BI, extract the ZIP, open `powerbi/olist_dashboard.pbip`
+in Desktop, set `DataFolder` to the extracted `data/processed/powerbi` folder, and refresh.
+The Power BI package is a local Desktop project, not a hosted interactive web report.
+
+**Validation:** SQL, Python and prepared data reconcile; native Excel recalculation and
+Power BI refresh/visual interactions still require Desktop checks. See
+[validation details](docs/validation.md).
+
+## At a glance
+
+| Delivered orders | Customers | Merchandise sales | Average order value | Late delivery rate |
+|---:|---:|---:|---:|---:|
+| 96,203 | 93,096 | R$13.18M | R$137.00 | 6.8% |
+
+Analysis period: **January 2017–August 2018**. All monetary values are in Brazilian reais
+(R$). Merchandise sales exclude freight and are not profit or marketplace commission revenue.
 
 ## Main findings
 
-| Question | What the analysis shows | Business use |
+| Finding | Evidence | Suggested follow-up |
 |---|---|---|
-| How much was sold? | R$13.18M in delivered merchandise sales; average order value R$137.00. | Establish a consistent sales baseline. |
-| Where are delivery problems? | Overall late rate 6.8%; MA 17.5%, CE 13.8%, RJ 12.1%, SP 4.5% among states with 500+ orders. | Prioritise a regional delivery investigation, considering both volume and rate. |
-| How do reviews differ? | On-time orders average 4.29 stars; orders 8+ days late average 1.70. | Track promise reliability alongside satisfaction. This is an association, not a causal estimate. |
-| Do customers return? | About 3.0% of observed customers have more than one delivered order in the analysis window. | Test a second-purchase campaign, with a control group and equal follow-up time. |
-| What changed over time? | November 2017 sales were 52.4% above October; 2018 monthly sales ranged from R$0.83M to R$0.98M. | Review peak-period planning; the data does not isolate promotion effects. |
-| How concentrated are sales? | The highest-sales seller decile accounts for about 67% of merchandise sales. | Monitor high-volume sellers and avoid relying on averages alone. |
+| **Delivery lateness is associated with lower reviews.** | On-time orders average **4.29 stars**, versus **1.70** for orders 8+ days late. | Investigate delivery promises, seller dispatch and carrier transit; test changes before estimating impact. |
+| **Delivery performance varies by state.** | Late rates are **17.5% in MA**, **13.8% in CE**, **12.1% in RJ** and **4.5% in SP**, among states with at least 500 orders. | Review late-order volume alongside rates to prioritise regional investigations. |
+| **Observed repeat purchasing is low.** | About **3.0%** of customers have more than one delivered order in the window. | Test a second-purchase campaign with a control group and equal follow-up time. |
+| **Sales have a clear peak period.** | November 2017 merchandise sales were **52.4% above October**. | Compare demand, promises and capacity around peaks; the data does not isolate promotion effects. |
+| **Seller sales are concentrated.** | The highest-sales seller decile accounts for approximately **67%** of merchandise sales. | Review high-volume seller performance and investigate quality issues using order-level metrics. |
 
-Supporting queries are in [sales](sql/03_sales.sql), [customers](sql/04_customers.sql),
-[delivery](sql/05_delivery.sql), [reviews](sql/06_reviews.sql),
-[payments](sql/07_payments.sql) and [sellers](sql/08_sellers.sql).
+These are observations and proposed actions, not measured improvements from interventions.
 
-## What each tool contributes
+## Analysis previews
 
-| Tool | Work demonstrated |
+### Sales performance
+
+![Monthly merchandise sales from January 2017 through August 2018](notebooks/figures/monthly_revenue.png)
+
+### Delivery and customer reviews
+
+![Average review score by delivery lateness](notebooks/figures/review_vs_lateness.png)
+
+### Customer purchasing
+
+![Customer and revenue share by RFM segment](notebooks/figures/rfm_segments.png)
+
+These previews were generated in Python. Download the dashboard files above to explore
+the Excel and Power BI versions.
+
+## Skills demonstrated
+
+| Tool | How I used it |
 |---|---|
-| SQL / SQLite | Joins, CTEs, cleaned views, window functions, monthly growth, cohort retention and customer segmentation. |
-| Python / pandas | Source profiling, order-level aggregation, independent reconciliation, RFM scoring and matplotlib charts. |
-| Excel | COUNTIFS, SUMIFS, AVERAGEIFS, state dropdown, monthly growth, Pareto analysis and charts. |
-| Power BI | Order/item model, single-direction relationships, Power Query CSV imports, DAX measures and three report pages. |
+| **SQL / SQLite** | Joined related tables, built clean views, used CTEs and window functions, and calculated monthly growth, customer cohorts and RFM segments. |
+| **Python / pandas** | Profiled source data, handled missing values, aggregated transactions, reconciled SQL results and created matplotlib charts. |
+| **Excel** | Used COUNTIFS, SUMIFS and AVERAGEIFS for KPIs, a state dropdown, monthly growth, category Pareto analysis and charts. |
+| **Power BI** | Defined an order/item model, relationships, Power Query imports and 15 DAX measures across three report pages. |
 
-The code uses common analyst tools. RFM and cohorts are explained in the notebook and
-[interview guide](docs/interview_guide.md); there is no machine learning model.
+## Method and data quality
 
-## Metric definitions and important limits
+1. Load the nine raw CSV tables into SQLite and inspect keys, duplicates and missing values.
+2. Restrict purchases to January 2017–August 2018. Sales analysis uses delivered orders
+   with a recorded delivery timestamp and at least one item.
+3. Aggregate items, reviews and payments to the appropriate grain before joining, so
+   multiple payment or item records do not inflate sales.
+4. Identify people with `customer_unique_id`; average multiple reviews per order and
+   exclude missing scores from review calculations.
+5. Build sales, delivery and customer analyses, then compare SQL results with pandas
+   and the dashboard data exports.
 
-- **Revenue** means delivered merchandise sales: sum of item prices, excluding freight.
-  It is not profit or Olist's commission revenue. Currency is Brazilian reais (R$).
-- Orders must be delivered and have a recorded delivery timestamp. The same population
-  is used in SQL, Python, Excel and the Power BI sales measures.
-- Orders without items are excluded from the clean model. This means the clean model
-  must not be used to calculate an overall cancellation rate.
-- Customers use `customer_unique_id`; `customer_id` is an order-specific identifier.
-- Multiple source reviews for an order are averaged first. Review averages exclude
-  missing scores; bad-review share divides by reviewed orders only.
-- Late means delivery on a calendar date after the promised date. Delivery duration
-  uses elapsed days. These are different measures.
-- Item rows are aggregated before joining to payments or reviews, preventing inflated sales.
-  Category and seller review metrics count an order once within each category or seller.
-- Retention cohorts begin with the **first observed** delivered purchase in this window.
-  Unobserved future months are blank. Low repeat purchase does not establish churn.
-- RFM segments use the full window and are descriptive; they are not historical predictions.
-- This dataset has no store inventory, stockouts, product costs, margin, staffing or
-  promotion exposure. Those metrics cannot be inferred from sales alone.
+**Checks:** 28 data checks pass, and 39 Power BI project/report definitions conform to
+Microsoft's public JSON schemas. These structural checks do not execute DAX or Power Query.
+Details are in the [validation notes](docs/validation.md) and
+[machine-readable results](docs/validation_results.json).
 
-See the [data dictionary](docs/data_dictionary.md) for table grains and calculation rules.
+## Scope and limitations
 
-## Reproduce the analysis
+- This is a personal study of historical Brazilian marketplace data. It demonstrates
+  methods relevant to retail analytics; it is not work performed for a retailer.
+- Delivery/review differences are associations, not causal estimates.
+- Cohorts start with the first **observed** purchase in the window. Future follow-up
+  months remain blank, and a single purchase does not establish customer churn.
+- RFM labels describe the full-window snapshot; segment membership stays fixed when
+  Power BI date filters change.
+- Inventory, product costs, store staffing and promotion exposure are unavailable.
+  Stockouts, margin and promotion uplift cannot be measured from this dataset.
+- Itemless orders are excluded from the clean model, so it is unsuitable for an overall
+  cancellation-rate calculation.
 
-Tested locally with Python 3.12 and pandas 2.2. Download the nine CSVs from the
-[Brazilian E-Commerce Public Dataset by Olist](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce)
-and extract them directly into `data/raw/`. Do not rename their columns.
+See the [data dictionary](docs/data_dictionary.md) for table grains and KPI definitions.
+
+## Run the project
+
+Tested with Python 3.12 and pandas 2.2. Download the nine source CSVs from the
+[Olist Brazilian E-Commerce Public Dataset](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce)
+and extract them into `data/raw/` using their original filenames.
 
 From the repository root:
 
@@ -92,27 +128,23 @@ python scripts/validate_project.py
 python scripts/validate_powerbi.py
 ```
 
-`build_excel.py` is the original Python workbook builder; Excel calculates its formulas
-when opened. The existing workbook was preserved separately before review.
-`validate_powerbi.py` needs internet on its first run to retrieve Microsoft's schemas.
-The Power BI builder sets a local `DataFolder` parameter; regenerate after moving the
-repository or change that parameter in Desktop.
+Excel calculates the rebuilt workbook's formulas when opened. The Power BI builder
+sets the local data-folder parameter; regenerate after moving the repository or change
+`DataFolder` in Desktop. Schema validation requires internet access on its first run.
 
-**Verification boundary:** the SQL/Python/data-export checks and Power BI JSON schema
-checks run locally. Desktop report refresh, DAX execution and visual interactions still
-need checking in Power BI Desktop; schema validity alone does not prove them.
-See [review notes](docs/project_review.md) for the exact Excel and Desktop status.
-
-## Repository layout
+## Repository structure
 
 ```text
-sql/                    schema, cleaned views and business queries
-scripts/                load, analyse, export, build and validate
-notebooks/              executed notebook and chart images
-excel/                  formula-driven summary workbook
-powerbi/                PBIP report, semantic model, DAX and opening guide
-docs/                   business summary, definitions, validation and interview notes
-data/raw/               source CSVs (excluded from Git)
-data/processed/          generated database/clean tables (large files excluded)
-data/processed/sql_results/  small query outputs included for review
+sql/                         Schema, clean views and 18 business queries
+scripts/                     Reproducible load, analysis, build and validation scripts
+notebooks/                   Executed notebook, Python source and chart images
+excel/                       Final Excel dashboard workbook
+powerbi/                     Power BI project, model, DAX and opening guide
+docs/                        Business summary, data dictionary and validation evidence
+data/processed/sql_results/  Small CSV outputs for reviewing the SQL analysis
+data/raw/                    Source CSVs downloaded separately; excluded from Git
 ```
+
+**Data source:** [Brazilian E-Commerce Public Dataset by Olist](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce).
+Raw data, local databases, temporary previews and personal preparation notes are excluded
+from the repository's current file tree.

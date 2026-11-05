@@ -27,6 +27,14 @@ outputs/
 *.log
 powerbi/**/.pbi/
 
+# Local review material and superseded workbook
+excel/olist_summary.xlsx
+docs/interview_guide.md
+docs/project_review.md
+docs/excel_validation.json
+scripts/check_excel.py
+scripts/preview_excel.mjs
+
 # Generated database
 *.db
 

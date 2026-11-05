@@ -6,6 +6,15 @@ The report has Sales, Delivery and Customers pages, 30 visuals and 15 measures.
 
 ## Open and refresh
 
+The [Power BI download](https://github.com/Adharsh818/data-analytics-portfolio/releases/download/portfolio-v1/olist_powerbi_dashboard.zip)
+includes the five prepared data tables, so you can open it without rebuilding the analysis.
+Extract the ZIP, open `powerbi/olist_dashboard.pbip`, set `DataFolder` to the extracted
+`data/processed/powerbi` folder under Transform data → Manage parameters, then apply
+and refresh. Project files do not contain an imported data cache. Use current Power BI
+Desktop with PBIP/PBIR support and complete the checks below.
+
+To build from the repository source instead:
+
 1. Run the Python pipeline in the main README. If the generated CSVs already exist,
    run `python scripts/build_powerbi_project.py` from the repository root. This sets
    the local `DataFolder` parameter to the correct absolute path.

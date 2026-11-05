@@ -5,6 +5,7 @@ PBIR files follow Microsoft's published JSON schemas; Desktop verification is se
 """
 import json
 import re
+import uuid
 from pathlib import Path
 
 import pandas as pd
@@ -62,6 +63,8 @@ def visual(page, name, kind, title, x, y, width, height, roles=None, sort=None, 
 
 
 def main():
+    if (OUT / 'Olist.Report/report.json').exists():
+        raise SystemExit('An existing PBIR-Legacy report was found. Preserve that saved report before rebuilding; do not mix it with a generated definition folder.')
     if not (DATA / 'fact_orders.csv').exists():
         raise SystemExit('Run python scripts/export_powerbi.py first.')
     tables = []
@@ -142,7 +145,15 @@ def main():
         'item/report/definitionProperties/2.0.0/schema.json', 'version': '4.0',
         'datasetReference': {'byPath': {'path': '../Olist.SemanticModel'}}})
     write(OUT / 'Olist.Report/definition/version.json', {'$schema': SCHEMA +
-        'item/report/definition/versionMetadata/1.0.0/schema.json', 'version': '1.0.0'})
+        'item/report/definition/versionMetadata/1.0.0/schema.json', 'version': '2.0.0'})
+    # Preserve Desktop-written platform metadata; create it for a fresh project only.
+    for folder, kind in [('Olist.Report', 'Report'), ('Olist.SemanticModel', 'SemanticModel')]:
+        platform = OUT / folder / '.platform'
+        if not platform.exists():
+            write(platform, {'$schema': SCHEMA + 'gitIntegration/platformProperties/2.0.0/schema.json',
+                'metadata': {'type': kind, 'displayName': 'Olist Retail Analytics'},
+                'config': {'version': '2.0', 'logicalId': str(uuid.uuid5(uuid.NAMESPACE_URL,
+                    'https://github.com/Adharsh818/data-analytics-portfolio/' + folder))}})
     write(OUT / 'Olist.Report/definition/report.json', {'$schema': SCHEMA +
         'item/report/definition/report/2.0.0/schema.json', 'themeCollection': {},
         'settings': {'defaultFilterActionIsDataFilter': True}})

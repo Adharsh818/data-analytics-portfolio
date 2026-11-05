@@ -16,8 +16,8 @@ and understand customer purchasing behaviour?
 
 | Deliverable | Direct link | What you can explore |
 |---|---|---|
-| **Excel dashboard** | [Download Excel workbook](https://github.com/Adharsh818/data-analytics-portfolio/releases/download/portfolio-v1.1/olist_summary_reviewed.xlsx) | Sales KPIs with a state selector, monthly growth, delivery reviews and category Pareto analysis. |
-| **Power BI dashboard** | [Download Power BI package](https://github.com/Adharsh818/data-analytics-portfolio/releases/download/portfolio-v1.1/olist_powerbi_dashboard.zip) · [Opening guide](powerbi/BUILD_GUIDE.md) | Three report pages: Sales Overview, Delivery & Reviews, and Customer Purchasing. Includes the project files and five prepared data tables. |
+| **Excel dashboard** | [Download Excel workbook](https://github.com/Adharsh818/data-analytics-portfolio/releases/download/portfolio-v1.2/olist_summary_reviewed.xlsx) | Sales KPIs with a state selector, monthly growth, delivery reviews and category Pareto analysis. |
+| **Power BI dashboard** | [Download Power BI package](https://github.com/Adharsh818/data-analytics-portfolio/releases/download/portfolio-v1.2/olist_powerbi_dashboard.zip) · [Opening guide](powerbi/BUILD_GUIDE.md) | Three report pages: Sales Overview, Delivery & Reviews, and Customer Purchasing. Includes the project files and five prepared data tables. |
 | **Python analysis** | [View executed notebook](notebooks/olist_analysis.ipynb) | Cleaning decisions, exploratory analysis, customer segments and cohort retention, with saved outputs. |
 | **Business summary** | [Read findings and proposed actions](docs/business_summary.md) | A short explanation of the main findings, their limits and the next business questions. |
 | **SQL analysis** | [Explore SQL queries](sql/) | Sales, customers, delivery, reviews, payments and sellers. |
@@ -99,8 +99,8 @@ Three useful lessons from checking the analysis:
 | **Choose the denominator carefully.** | Orders with several items should not receive extra weight in review averages; missing reviews are not bad reviews. | Count each order once within a category or seller, and calculate review rates using reviewed orders. |
 | **A missing observation is different from zero.** | An August 2018 customer cohort has no September follow-up in this dataset. | Leave future retention months blank instead of reporting 0% retention. |
 
-**Checks:** 28 data checks pass, and 39 Power BI project/report definitions conform to
-Microsoft's public JSON schemas. These structural checks do not execute DAX or Power Query.
+**Checks:** 28 data checks pass, and 41 generated Power BI project/report/platform
+definitions conform to Microsoft's public JSON schemas. These structural checks do not execute DAX or Power Query.
 Details are in the [validation notes](docs/validation.md) and
 [machine-readable results](docs/validation_results.json).
 

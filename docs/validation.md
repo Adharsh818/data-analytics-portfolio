@@ -14,6 +14,10 @@ merchandise sales. Sales exclude freight. Validation was run on 5 November 2026.
 - On 6 November, corrected a DAX-header parsing error that treated `VAR cust` as a
   separate measure. The generator now retains the complete Repeat Customer % body;
   regression checks verify 14 nonempty business measures and its VAR/RETURN expression.
+- A subsequent compatibility review corrected the enhanced report content version to
+  `2.0.0`, included report/model platform metadata, and added page/visual presence and
+  report-format checks. A clean rebuild passes 41 schema checks; Desktop-saved files
+  may omit some schema declarations and produce a different count.
 - Compared the Excel source-order data against pandas, including IDs, revenue,
   freight, review scores and late flags. Checked all 20 monthly and 27 state summaries.
 - Preserved the workbook's charts, tables and state dropdown. The revised review-share

@@ -18,7 +18,9 @@ def main():
              ROOT / 'docs/validation_results.json']
     files += sorted((project / 'Olist.Report').rglob('*.json'))
     files += [project / 'Olist.Report/definition.pbir',
+              project / 'Olist.Report/.platform',
               project / 'Olist.SemanticModel/definition.pbism',
+              project / 'Olist.SemanticModel/.platform',
               project / 'Olist.SemanticModel/model.bim']
     for name in ['fact_orders', 'fact_order_items', 'dim_customer', 'dim_state', 'dim_date']:
         files.append(ROOT / f'data/processed/powerbi/{name}.csv')

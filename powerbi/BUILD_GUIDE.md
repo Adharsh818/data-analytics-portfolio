@@ -6,7 +6,7 @@ The report has Sales, Delivery and Customers pages, 30 visuals and 14 measures.
 
 ## Open and refresh
 
-The [Power BI download](https://github.com/Adharsh818/data-analytics-portfolio/releases/download/portfolio-v1.1/olist_powerbi_dashboard.zip)
+The [Power BI download](https://github.com/Adharsh818/data-analytics-portfolio/releases/download/portfolio-v1.2/olist_powerbi_dashboard.zip)
 includes the five prepared data tables, so you can open it without rebuilding the analysis.
 Extract the ZIP, open `powerbi/olist_dashboard.pbip`, set `DataFolder` to the extracted
 `data/processed/powerbi` folder under Transform data → Manage parameters, then apply
@@ -94,7 +94,7 @@ Power BI screenshots.
 
 ## Validation status and format references
 
-All 39 report/project JSON definitions passed `python scripts/validate_powerbi.py`.
+All 41 generated report/project/platform definitions pass `python scripts/validate_powerbi.py`.
 The data exports reconcile to SQL/pandas. **Power Query refresh, DAX evaluation,
 visual rendering and interactions have not been verified in Desktop** because the
 desktop automation helper failed to initialize. Complete the checks above before
@@ -102,6 +102,12 @@ claiming a fully tested Power BI dashboard.
 
 The public schemas validate the file structure, not visual role semantics or DAX results.
 `model.bim` is a semantic model definition and is not included in PBIR schema validation.
+
+The enhanced report uses content format `2.0.0` in `definition/version.json`, along
+with platform metadata for both report and model. A Desktop-saved file may omit some
+`$schema` declarations, so its schema-check count can differ without changing the
+number of pages or visuals. The validator also checks that all three pages and 30
+visuals exist and that legacy/enhanced report definitions are not mixed.
 
 - [Microsoft PBIP overview](https://learn.microsoft.com/en-us/power-bi/developer/projects/projects-overview)
 - [Report folder and PBIR format](https://learn.microsoft.com/en-us/power-bi/developer/projects/projects-report)

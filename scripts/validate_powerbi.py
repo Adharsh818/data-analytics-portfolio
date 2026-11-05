@@ -27,11 +27,14 @@ def fetch(uri):
     return json.loads(path.read_text(encoding='utf-8'))
 
 
-def main():
+def main(project_dir=None):
     warnings.filterwarnings('ignore', category=DeprecationWarning)
+    project=Path(project_dir) if project_dir is not None else ROOT/'powerbi'
+    definition=project/'Olist.Report/definition'
+    assert definition.is_dir(), 'The enhanced report definition folder is missing'
     count = 0
-    for path in sorted((ROOT / 'powerbi').rglob('*')):
-        if path.suffix not in {'.json', '.pbip', '.pbir', '.pbism'} or '.pbi' in path.parts:
+    for path in sorted(project.rglob('*')):
+        if (path.suffix not in {'.json', '.pbip', '.pbir', '.pbism'} and path.name != '.platform') or '.pbi' in path.parts:
             continue
         value = json.loads(path.read_text(encoding='utf-8'))
         if '$schema' not in value:
@@ -42,13 +45,22 @@ def main():
         jsonschema.Draft7Validator(schema, resolver=resolver).validate(value)
         count += 1
     print(f'PASS: {count} PBIP/PBIR files conform to Microsoft JSON schemas.')
-    model=json.loads((ROOT/'powerbi/Olist.SemanticModel/model.bim').read_text(encoding='utf-8'))['model']
+    assert not (project/'Olist.Report/report.json').exists(), 'Legacy and enhanced report definitions must not be mixed'
+    version=json.loads((definition/'version.json').read_text(encoding='utf-8'))
+    assert version['version']=='2.0.0', 'Current PBIR report content must use format version 2.0.0'
+    assert len(list((definition/'pages').glob('*/page.json')))==3, 'Expected three report pages'
+    assert len(list((definition/'pages').rglob('visual.json')))==30, 'Expected 30 report visuals'
+    for folder in ['Olist.Report','Olist.SemanticModel']:
+        assert (project/folder/'.platform').exists(), f'Missing Desktop platform metadata: {folder}'
+    model=json.loads((project/'Olist.SemanticModel/model.bim').read_text(encoding='utf-8'))['model']
     tables={t['name']:t for t in model['tables']}
     measures={m['name']:m for t in tables.values() for m in t.get('measures',[])}
     assert len(measures)==14, 'Expected the 14 declared business measures'
     assert not any(name.upper().startswith('VAR ') for name in measures), 'A DAX variable was parsed as a measure'
     assert all(m['expression'] for m in measures.values()), 'A measure has no expression'
-    repeat='\n'.join(measures['Repeat Customer %']['expression'])
+    repeat=measures['Repeat Customer %']['expression']
+    if isinstance(repeat,list):
+        repeat='\n'.join(repeat)
     assert 'VAR cust =' in repeat and 'RETURN' in repeat, 'Repeat measure lost its variable or RETURN body'
     print('PASS: 14 nonempty DAX measures; Repeat Customer % retains its complete VAR/RETURN expression.')
     fields={name:{c['name'] for c in table['columns']} | {m['name'] for m in table.get('measures',[])}
@@ -68,9 +80,9 @@ def main():
         elif isinstance(value,list):
             for child in value:
                 references(child)
-    for path in (ROOT/'powerbi/Olist.Report').rglob('visual.json'):
+    for path in (project/'Olist.Report').rglob('visual.json'):
         references(json.loads(path.read_text(encoding='utf-8')))
-    print('PASS: all report field references and four relationships point to model columns/measures.')
+    print(f'PASS: all report field references and {len(model["relationships"])} relationships point to model columns/measures.')
     print('This checks structure only. DAX, Power Query refresh and visual interaction need Desktop.')
 
 

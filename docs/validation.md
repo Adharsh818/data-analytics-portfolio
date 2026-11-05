@@ -26,8 +26,9 @@ merchandise sales. Sales exclude freight. Data and structural validation were re
   formula explicitly excludes missing scores and passed a small spreadsheet-engine
   test that included a missing score and a changed input. A subsequent XML repair
   preserves the original worksheet namespace declarations and all ZIP parts except
-  the intentionally corrected Delivery sheet. Reopening the corrected file in Excel
-  remains a separate application check.
+  the intentionally corrected Delivery sheet. On 6 November, the owner confirmed
+  the corrected workbook opens normally without a repair warning and both Dashboard
+  and Delivery sheets are available.
 
 The data-check results are available in [validation_results.json](validation_results.json).
 Run `python scripts/validate_project.py` and `python scripts/validate_powerbi.py` to

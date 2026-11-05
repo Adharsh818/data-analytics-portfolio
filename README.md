@@ -52,6 +52,13 @@ Analysis period: **January 2017–August 2018**. All monetary values are in Braz
 
 These are observations and proposed actions, not measured improvements from interventions.
 
+## Excel dashboard screenshot
+
+![Excel sales dashboard with the state selector set to All](excel/screenshots/excel-dashboard.png)
+
+This is the workbook open in Excel with the state selector set to All. The selector
+filters the KPI cards; the monthly table shows all states.
+
 ## Analysis previews
 
 ### Sales performance

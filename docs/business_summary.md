@@ -41,7 +41,7 @@ These are proposed actions, not interventions performed or savings achieved.
 ## Relevance to retail analytics
 
 The work demonstrates transaction joins, consistent KPI definitions, geographic
-performance comparisons, data quality checks and communication with operational teams.
+performance comparisons, data quality checks and recommendations for operational teams.
 Those methods transfer to retail. For a store-led business, the next dataset should add
 store/SKU inventory snapshots, replenishment, product costs and promotions so that
 availability, inventory turns, basket attachment and margin can be measured properly.

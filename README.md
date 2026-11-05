@@ -2,9 +2,12 @@
 
 **SQL · Python · Excel · Power BI**
 
-An end-to-end analysis of **96,203 delivered orders** from Olist, a Brazilian online
-marketplace. I explored sales trends, delivery reliability and repeat purchasing to
-identify questions a retail operations team could investigate next.
+A personal learning project using **96,203 delivered orders** from Olist, a Brazilian
+online marketplace. I used this dataset to practise SQL, Python, Excel and Power BI
+on related tables and turn the results into a short retail business analysis.
+
+The focus is on getting the joins and calculations right, building useful reports,
+and explaining what the data can and cannot tell us.
 
 **Business question:** Where should a retail team focus to improve delivery reliability
 and understand customer purchasing behaviour?
@@ -75,17 +78,19 @@ the Excel and Power BI versions.
 | **Excel** | Used COUNTIFS, SUMIFS and AVERAGEIFS for KPIs, a state dropdown, monthly growth, category Pareto analysis and charts. |
 | **Power BI** | Defined an order/item model, relationships, Power Query imports and 15 DAX measures across three report pages. |
 
-## Method and data quality
+## Data decisions and learning takeaways
 
-1. Load the nine raw CSV tables into SQLite and inspect keys, duplicates and missing values.
-2. Restrict purchases to January 2017–August 2018. Sales analysis uses delivered orders
-   with a recorded delivery timestamp and at least one item.
-3. Aggregate items, reviews and payments to the appropriate grain before joining, so
-   multiple payment or item records do not inflate sales.
-4. Identify people with `customer_unique_id`; average multiple reviews per order and
-   exclude missing scores from review calculations.
-5. Build sales, delivery and customer analyses, then compare SQL results with pandas
-   and the dashboard data exports.
+The workflow is raw CSVs → SQLite → pandas analysis → Excel and Power BI. Sales use
+delivered orders purchased in the analysis window, with at least one item and a recorded
+delivery timestamp. SQL totals are compared with pandas and the prepared dashboard data.
+
+Three useful lessons from checking the analysis:
+
+| Lesson | Example in this project | How it is handled |
+|---|---|---|
+| **Decide what one row represents before joining.** | An order with two items and two payments can become four rows in a direct join. | Aggregate the tables to order level before joining to calculate sales. |
+| **Choose the denominator carefully.** | Orders with several items should not receive extra weight in review averages; missing reviews are not bad reviews. | Count each order once within a category or seller, and calculate review rates using reviewed orders. |
+| **A missing observation is different from zero.** | An August 2018 customer cohort has no September follow-up in this dataset. | Leave future retention months blank instead of reporting 0% retention. |
 
 **Checks:** 28 data checks pass, and 39 Power BI project/report definitions conform to
 Microsoft's public JSON schemas. These structural checks do not execute DAX or Power Query.
@@ -107,6 +112,13 @@ Details are in the [validation notes](docs/validation.md) and
   cancellation-rate calculation.
 
 See the [data dictionary](docs/data_dictionary.md) for table grains and KPI definitions.
+
+## What I would improve next
+
+- Complete the Excel and Power BI Desktop checks and add screenshots of the actual
+  dashboard pages. The current README previews are Python charts.
+- Compare late-delivery and review patterns within the same product categories and
+  states to explore whether the overall pattern holds across different groups.
 
 ## Run the project
 

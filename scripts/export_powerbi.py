@@ -40,7 +40,9 @@ def main() -> None:
 
     orders["delivery_bucket"] = pd.cut(orders["days_vs_estimate"], [-np.inf, 0, 3, 7, np.inf],
                                        labels=["On time / early", "1-3 days late", "4-7 days late", "8+ days late"])
-    orders["is_delivered"] = (orders["order_status"] == "delivered").astype(int)
+    # Match the analysis population, including the known delivery timestamp rule.
+    orders["is_delivered"] = ((orders["order_status"] == "delivered") & orders["delivery_days"].notna()).astype(int)
+    orders["delivery_bucket_sort"] = orders["delivery_bucket"].cat.codes.replace(-1, np.nan)
     fact_orders = orders.drop(columns=["customer_city", "purchase_month"])
     fact_orders.to_csv(OUT / "fact_orders.csv", index=False)
 

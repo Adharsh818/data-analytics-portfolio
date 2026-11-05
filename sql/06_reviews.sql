@@ -9,7 +9,7 @@ SELECT CASE WHEN days_vs_estimate <= 0 THEN '1. On time / early'
        ROUND(AVG(review_score), 2)                                      AS avg_review,
        ROUND(100.0 * AVG(CASE WHEN review_score <= 2 THEN 1.0 ELSE 0 END), 1) AS pct_1_2_star
 FROM v_delivered_orders
-WHERE review_score IS NOT NULL
+WHERE review_score IS NOT NULL AND days_vs_estimate IS NOT NULL
 GROUP BY delivery_bucket
 ORDER BY delivery_bucket;
 
@@ -27,7 +27,7 @@ SELECT category,
        COUNT(DISTINCT order_id)       AS orders,
        ROUND(AVG(review_score), 2)    AS avg_review,
        ROUND(100.0 * AVG(is_late), 1) AS late_pct
-FROM v_items
+FROM (SELECT DISTINCT category, order_id, review_score, is_late FROM v_items)
 WHERE review_score IS NOT NULL
 GROUP BY category
 HAVING COUNT(DISTINCT order_id) >= 500

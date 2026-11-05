@@ -5,7 +5,7 @@
 #
 # 1. Checks data quality and cleans the raw tables
 # 2. Builds analysis-ready tables (also exported for Excel and Power BI)
-# 3. Explores sales trends, delivery performance and its effect on reviews
+# 3. Explores sales trends and the association between delivery performance and reviews
 # 4. Segments customers with RFM and measures cohort retention
 #
 # **Data:** `data/processed/olist.db`, built by `scripts/load_data.py`.
@@ -34,6 +34,8 @@ plt.rcParams.update({
     "axes.spines.right": False, "axes.grid": True, "grid.alpha": 0.3, "axes.titleweight": "bold",
 })
 
+if not DB.exists():
+    raise FileNotFoundError('Run python scripts/load_data.py first.')
 con = sqlite3.connect(DB)
 tables = ["orders", "customers", "order_items", "order_payments", "order_reviews",
           "products", "sellers", "category_translation"]
@@ -92,7 +94,7 @@ products["category"] = (products["product_category_name_english"]
 order_totals = items.groupby("order_id").agg(
     n_items=("order_item_id", "count"), revenue=("price", "sum"), freight=("freight_value", "sum"))
 reviews = df["order_reviews"].groupby("order_id")["review_score"].mean()
-payments = (df["order_payments"].sort_values("payment_value", ascending=False)
+payments = (df["order_payments"].sort_values(["payment_value", "payment_sequential"], ascending=[False, True])
             .groupby("order_id").agg(payment_type=("payment_type", "first"),
                                      installments=("payment_installments", "max")))
 
@@ -116,7 +118,7 @@ delivered[["revenue", "freight", "delivery_days", "review_score"]].describe().T
 
 # %% [markdown]
 # Price and freight are right-skewed (a few orders above R$ 1,000), which is normal for
-# e-commerce. They're real purchases, so they're kept rather than removed as outliers.
+# e-commerce. High-value records are retained because price alone is not evidence of error.
 # Totals match the SQL `kpis` query, which confirms both pipelines agree.
 
 # %%
@@ -162,7 +164,7 @@ fig.tight_layout(); fig.savefig(FIG / "top_categories.png"); plt.show()
 # %% [markdown]
 # ## 4. Delivery performance and reviews
 #
-# The key question: **does late delivery hurt customer satisfaction, and by how much?**
+# The key question: **how do review scores differ by delivery lateness?**
 
 # %%
 bins = [-np.inf, 0, 3, 7, np.inf]
@@ -183,7 +185,7 @@ for i, v in enumerate(by_bucket["avg_review"]):
     ax.text(i, v + 0.05, f"{v:.2f}", ha="center", fontweight="bold")
 ax.set_ylim(0, 5)
 ax.set_ylabel("Average review score (1-5)")
-ax.set_title("Late orders lose up to 2.6 stars on average")
+ax.set_title("Orders 8+ days late have reviews about 2.6 stars lower")
 fig.tight_layout(); fig.savefig(FIG / "review_vs_lateness.png"); plt.show()
 
 corr = delivered[["delivery_days", "days_vs_estimate", "review_score"]].corr(method="spearman")
@@ -205,7 +207,8 @@ fig.tight_layout(); fig.savefig(FIG / "late_by_state.png"); plt.show()
 # %% [markdown]
 # Late rates spike in the northeast (MA, CE, BA) and in RJ, while SP, the biggest market,
 # is among the best. Lateness also jumped to 12-19% in Nov 2017 and Feb-Mar 2018, right
-# after demand peaks, which points to logistics capacity rather than seller behaviour.
+# around demand peaks. Carrier capacity, seller dispatch and promised lead times need
+# further investigation; this dataset does not identify the cause.
 
 # %% [markdown]
 # ## 5. Customer segmentation (RFM)
@@ -219,9 +222,10 @@ rfm = delivered.groupby("customer_unique_id").agg(
 )
 print(f"Customers who ordered more than once: {100 * (rfm['frequency'] > 1).mean():.1f}%")
 
-# Recency and Monetary use quintiles. Frequency uses order count, since 97% bought once.
-rfm["R"] = pd.qcut(rfm["recency_days"], 5, labels=[5, 4, 3, 2, 1]).astype(int)
-rfm["M"] = pd.qcut(rfm["monetary"], 5, labels=[1, 2, 3, 4, 5]).astype(int)
+# Percentile ranks keep equal values together, matching SQL CUME_DIST.
+# Segment sizes need not be exactly 20% when values tie.
+rfm["R"] = 6 - np.ceil(rfm["recency_days"].rank(method="max", pct=True) * 5).astype(int)
+rfm["M"] = np.ceil(rfm["monetary"].round(2).rank(method="max", pct=True) * 5).astype(int)
 rfm["F"] = np.select([rfm["frequency"] >= 3, rfm["frequency"] == 2], [5, 4], 1)
 
 rfm["segment"] = np.select(
@@ -257,7 +261,8 @@ first = delivered.groupby("customer_unique_id")["order_purchase_timestamp"].min(
 c = delivered[["customer_unique_id", "order_purchase_timestamp"]].copy()
 c["cohort"] = c["customer_unique_id"].map(first)
 c["month_n"] = (c["order_purchase_timestamp"].dt.to_period("M") - c["cohort"]).apply(lambda x: x.n)
-cohort = c.groupby(["cohort", "month_n"])["customer_unique_id"].nunique().unstack()
+cohort = c.groupby(["cohort", "month_n"])["customer_unique_id"].nunique().unstack(fill_value=0)
+cohort = cohort.reindex(columns=range(20), fill_value=0)
 retention = cohort.div(cohort[0], axis=0) * 100
 
 # Only show months each cohort has actually lived through
@@ -275,7 +280,7 @@ for i in range(r.shape[0]):
         if not np.isnan(r.values[i, j]):
             ax.text(j, i, f"{r.values[i, j]:.1f}", ha="center", va="center", fontsize=7)
 ax.set_xlabel("Months since first order"); ax.set_ylabel("Cohort (first order month)")
-ax.set_title("Under 1% of customers come back in any later month")
+ax.set_title("Observed monthly cohort retention stays below 1%")
 ax.grid(False)
 fig.colorbar(im, ax=ax, label="% of cohort ordering again")
 fig.tight_layout(); fig.savefig(FIG / "cohort_retention.png"); plt.show()
@@ -303,17 +308,23 @@ print("Exported:", [p.name for p in out.glob("*_clean.csv")] + ["customers_rfm.c
 # ## Key findings
 #
 # 1. **Growth then plateau:** monthly revenue grew from R$ 112k (Jan 2017) to ~R$ 950k in
-#    2018, with a Black Friday spike in Nov 2017 (+52% MoM). Growth stalled from Mar 2018.
-# 2. **Late delivery is the biggest driver of bad reviews:** on-time orders average 4.29
+#    2018, with a November 2017 peak during the Black Friday period (+52% MoM).
+#    The data does not establish that the event caused the increase.
+# 2. **Delivery lateness is associated with lower reviews:** on-time orders average 4.29
 #    stars; orders 8+ days late average 1.70, and 79% of them get 1-2 stars.
 # 3. **Lateness is regional and seasonal:** the northeast (MA 17.5%, CE 13.8%) and RJ (12.1%)
 #    lag behind SP (4.5%). Late rates hit 19% in Mar 2018 after the holiday peak.
-# 4. **Almost nobody comes back:** 97% of customers ordered once, and monthly retention
-#    stays under 1%. Repeat buyers are the largest untapped lever.
+# 4. **Repeat purchasing is low in the observed window:** 97% ordered once, and monthly
+#    retention stays under 1%. Later cohorts have less follow-up; these are observed
+#    customers, not necessarily newly acquired customers or confirmed churn.
 # 5. **Revenue is concentrated:** the top 10% of sellers earn 67% of revenue, and the top 15
 #    categories earn 76%.
 #
-# **Recommendations:** fix delivery promises in the northeast and RJ (or set more realistic
-# estimates there); add logistics capacity before seasonal peaks; launch a second-purchase
-# campaign aimed at the "New high-value" and "At risk high-value" segments; and put
-# high-volume, low-rated sellers into a quality program.
+# **Next steps to test:** investigate delivery promises in MA, CE and RJ; compare seller
+# dispatch and carrier transit times before changing capacity; test a second-purchase
+# campaign with a control group; and review high-volume, low-rated sellers.
+# There are no inventory, cost or promotion-exposure data, so profit, stockouts,
+# campaign uplift and staffing needs cannot be calculated here.
+
+# %%
+con.close()

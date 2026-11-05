@@ -18,13 +18,19 @@ ORDER BY decile;
 
 -- name: problem_sellers
 -- High-volume sellers with poor reviews: candidates for a seller-quality program
+WITH seller_sales AS (
+    SELECT seller_id, SUM(price) AS revenue FROM v_items GROUP BY seller_id
+), seller_orders AS (
+    SELECT DISTINCT seller_id, order_id, review_score, is_late FROM v_items
+)
 SELECT i.seller_id,
        sl.seller_state,
        COUNT(DISTINCT i.order_id)       AS orders,
-       ROUND(SUM(i.price), 0)           AS revenue,
+       ROUND(s.revenue, 0)              AS revenue,
        ROUND(AVG(i.review_score), 2)    AS avg_review,
        ROUND(100.0 * AVG(i.is_late), 1) AS late_pct
-FROM v_items i
+FROM seller_orders i
+JOIN seller_sales s USING (seller_id)
 JOIN sellers sl USING (seller_id)
 GROUP BY i.seller_id
 HAVING COUNT(DISTINCT i.order_id) >= 100

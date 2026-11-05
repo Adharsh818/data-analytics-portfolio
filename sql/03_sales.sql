@@ -37,7 +37,7 @@ SELECT customer_state,
        COUNT(*)                                AS orders,
        ROUND(SUM(revenue), 0)                  AS revenue,
        ROUND(100.0 * SUM(revenue) / SUM(SUM(revenue)) OVER (), 1) AS revenue_share_pct,
-       ROUND(100.0 * AVG(freight / revenue), 1) AS freight_as_pct_of_price
+       ROUND(100.0 * SUM(freight) / NULLIF(SUM(revenue), 0), 1) AS freight_as_pct_of_price
 FROM v_delivered_orders
 GROUP BY customer_state
 ORDER BY revenue DESC;

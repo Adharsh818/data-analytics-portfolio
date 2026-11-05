@@ -68,11 +68,11 @@ def main() -> None:
     for kind, src in split_cells(SRC.read_text(encoding="utf-8")):
         lines = src.splitlines(keepends=True)
         if kind == "markdown":
-            cells.append({"cell_type": "markdown", "metadata": {}, "source": lines})
+            cells.append({"cell_type": "markdown", "id": f"cell-{len(cells)+1:03d}", "metadata": {}, "source": lines})
             continue
         count += 1
         print(f"Running cell {count}...")
-        cells.append({"cell_type": "code", "execution_count": count, "metadata": {},
+        cells.append({"cell_type": "code", "id": f"cell-{len(cells)+1:03d}", "execution_count": count, "metadata": {},
                       "outputs": run_cell(src, ns, count), "source": lines})
     nb = {"cells": cells, "metadata": {"kernelspec": {"display_name": "Python 3", "language": "python", "name": "python3"},
                                        "language_info": {"name": "python"}},

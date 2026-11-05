@@ -1,4 +1,4 @@
-"""Build excel/olist_summary.xlsx from the cleaned tables.
+"""Build excel/olist_summary_reviewed.xlsx from the cleaned tables.
 
 Sheets:
   About         what the workbook is and how it was built
@@ -26,7 +26,7 @@ from openpyxl.worksheet.table import Table, TableStyleInfo
 
 ROOT = Path(__file__).resolve().parents[1]
 PROC = ROOT / "data" / "processed"
-OUT = ROOT / "excel" / "olist_summary.xlsx"
+OUT = ROOT / "excel" / "olist_summary_reviewed.xlsx"
 
 FONT = "Arial"
 NAVY = "1F3A5F"
@@ -250,7 +250,7 @@ def main() -> None:
 
     # ---------- Delivery ----------
     ws_d = wb.create_sheet("Delivery", 2)
-    title(ws_d, "Does late delivery hurt reviews?",
+    title(ws_d, "Review scores by delivery lateness",
           "Delivery lateness = delivered date minus the estimated date shown to the customer at purchase.")
     header_row(ws_d, 4, ["Delivery vs promise", "Orders", "Share of orders", "Avg review", "1-2 star reviews",
                          "Reviews counted"])
@@ -261,7 +261,7 @@ def main() -> None:
         ws_d.cell(row=r, column=3, value=f"=B{r}/SUM($B$5:$B$8)").number_format = "0.0%"
         ws_d.cell(row=r, column=4, value=f'=AVERAGEIFS({R["review"]},{R["bucket"]},A{r})').number_format = "0.00"
         ws_d.cell(row=r, column=6, value=f'=COUNTIFS({R["bucket"]},A{r},{R["review"]},"<>")').number_format = "#,##0"
-        ws_d.cell(row=r, column=5, value=f'=COUNTIFS({R["bucket"]},A{r},{R["review"]},"<=2")/F{r}').number_format = "0.0%"
+        ws_d.cell(row=r, column=5, value=f'=IF(F{r}=0,"n.a.",COUNTIFS({R["bucket"]},A{r},{R["review"]},"<=2",{R["review"]},"<>")/F{r})').number_format = "0.0%"
         for c in range(1, 7):
             ws_d.cell(row=r, column=c).font = f()
             ws_d.cell(row=r, column=c).border = BOX

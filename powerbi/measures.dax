@@ -24,12 +24,6 @@ DIVIDE ( [Total Revenue] - [Revenue Prev Month], [Revenue Prev Month] )
 Category Revenue =
 CALCULATE ( SUM ( fact_order_items[price] ), fact_orders[is_delivered] = 1 )
 
-Cancel Rate =
-DIVIDE (
-    CALCULATE ( COUNTROWS ( fact_orders ), fact_orders[order_status] IN { "canceled", "unavailable" } ),
-    COUNTROWS ( fact_orders )
-)
-
 // ---------- Delivery & satisfaction ----------
 Avg Delivery Days =
 CALCULATE ( AVERAGE ( fact_orders[delivery_days] ), fact_orders[is_delivered] = 1 )
@@ -42,7 +36,8 @@ CALCULATE ( AVERAGE ( fact_orders[review_score] ), fact_orders[is_delivered] = 1
 
 Bad Review % =
 DIVIDE (
-    CALCULATE ( COUNTROWS ( fact_orders ), fact_orders[is_delivered] = 1, fact_orders[review_score] <= 2 ),
+    CALCULATE ( COUNTROWS ( fact_orders ), fact_orders[is_delivered] = 1,
+        NOT ISBLANK ( fact_orders[review_score] ), fact_orders[review_score] <= 2 ),
     CALCULATE ( COUNTROWS ( fact_orders ), fact_orders[is_delivered] = 1, NOT ISBLANK ( fact_orders[review_score] ) )
 )
 
@@ -56,8 +51,9 @@ VAR cust =
 RETURN
     DIVIDE ( COUNTROWS ( FILTER ( cust, [n] > 1 ) ), COUNTROWS ( cust ) )
 
+// Count the fact-side customers so date, state and payment filters also apply.
 Segment Customers =
-CALCULATE ( COUNTROWS ( dim_customer ), dim_customer[segment] <> "No delivered order" )
+[Customers]
 
 Segment Revenue Share =
 DIVIDE ( [Total Revenue], CALCULATE ( [Total Revenue], ALL ( dim_customer[segment] ) ) )

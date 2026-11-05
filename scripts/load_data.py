@@ -50,6 +50,11 @@ def main() -> None:
             nulls = df.isna().sum()
             nulls = ", ".join(f"{c}={n}" for c, n in nulls[nulls > 0].items()) or "-"
             print(f"{table:<22}{len(df):>10,}{df.shape[1]:>6}  {nulls}")
+        con.executescript('''
+            CREATE INDEX IF NOT EXISTS idx_reviews_order ON order_reviews(order_id);
+            CREATE INDEX IF NOT EXISTS idx_payments_order ON order_payments(order_id);
+            CREATE INDEX IF NOT EXISTS idx_orders_customer ON orders(customer_id);
+        ''')
     print(f"\nDatabase written to {DB.relative_to(ROOT)}")
 
 

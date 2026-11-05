@@ -18,6 +18,8 @@ SKIP = {"01_schema.sql", "02_clean_views.sql"}
 
 
 def main() -> None:
+    if not DB.exists():
+        raise SystemExit('Database missing. Run python scripts/load_data.py first.')
     OUT.mkdir(parents=True, exist_ok=True)
     pd.set_option("display.width", 200)
     pd.set_option("display.max_columns", 20)

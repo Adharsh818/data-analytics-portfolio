@@ -41,15 +41,20 @@ counts AS (
     GROUP BY cohort
 )
 SELECT cohort, cohort_size,
-       ROUND(100.0 * m1 / cohort_size, 2) AS m1_pct,
-       ROUND(100.0 * m2 / cohort_size, 2) AS m2_pct,
-       ROUND(100.0 * m3 / cohort_size, 2) AS m3_pct,
-       ROUND(100.0 * m6 / cohort_size, 2) AS m6_pct
+       CASE WHEN DATE(cohort || '-01', '+1 month') <= '2018-08-01'
+            THEN ROUND(100.0 * m1 / cohort_size, 2) END AS m1_pct,
+       CASE WHEN DATE(cohort || '-01', '+2 months') <= '2018-08-01'
+            THEN ROUND(100.0 * m2 / cohort_size, 2) END AS m2_pct,
+       CASE WHEN DATE(cohort || '-01', '+3 months') <= '2018-08-01'
+            THEN ROUND(100.0 * m3 / cohort_size, 2) END AS m3_pct,
+       CASE WHEN DATE(cohort || '-01', '+6 months') <= '2018-08-01'
+            THEN ROUND(100.0 * m6 / cohort_size, 2) END AS m6_pct
 FROM counts
 ORDER BY cohort;
 
 -- name: rfm_segments
--- Recency and Monetary scored 1-5 with NTILE. Frequency is scored by order count instead,
+-- Recency and Monetary use value quintiles (CUME_DIST), keeping tied values together.
+-- Frequency is scored by order count instead,
 -- because ~97% of customers bought once and quintiles on frequency would be meaningless.
 WITH ref AS (SELECT DATE(MAX(purchase_date), '+1 day') AS d FROM v_delivered_orders),
 base AS (
@@ -62,9 +67,9 @@ base AS (
 ),
 scored AS (
     SELECT *,
-           NTILE(5) OVER (ORDER BY recency_days DESC) AS r,
+           6 - MAX(1, CAST(CEIL(5 * CUME_DIST() OVER (ORDER BY recency_days)) AS INT)) AS r,
            CASE WHEN frequency >= 3 THEN 5 WHEN frequency = 2 THEN 4 ELSE 1 END AS f,
-           NTILE(5) OVER (ORDER BY monetary) AS m
+           MAX(1, CAST(CEIL(5 * CUME_DIST() OVER (ORDER BY ROUND(monetary, 2))) AS INT)) AS m
     FROM base
 )
 SELECT CASE

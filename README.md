@@ -1,88 +1,118 @@
-# Olist E-commerce Analytics
+# Retail Sales & Delivery Analysis | Olist
 
-End-to-end retail analytics on ~96k delivered orders from Olist, a Brazilian online marketplace
-(Jan 2017 - Aug 2018), using **SQL, Python, Excel and Power BI**. The project goes from 9 raw
-tables to cleaned data, answers six business questions, and ends with recommendations a retail
-team could act on.
+A personal retail analytics project using **SQL, Python, Excel and Power BI** to answer:
+**Where should an online retail team investigate sales performance and customer experience?**
 
-![Late orders lose up to 2.6 stars](notebooks/figures/review_vs_lateness.png)
+I analysed **96,203 delivered orders**, purchased from January 2017 to August 2018, from
+Olist, a Brazilian online marketplace. The work covers data cleaning, sales reporting,
+delivery reliability, customer purchasing and seller performance.
 
-## Key insights
+This is historical public data, not a project for Target, Lowe's, 7-Eleven or Walmart.
+The transferable work is defining retail KPIs, joining transaction tables safely,
+checking results and explaining the next business decision.
 
-| | Finding | Evidence |
+## Start here
+
+- [Business summary](docs/business_summary.md): findings, priorities and proposed follow-up.
+- [Python notebook](notebooks/olist_analysis.ipynb): executed analysis with charts and explanations.
+- [Reviewed Excel workbook](excel/olist_summary_reviewed.xlsx): formulas, state selector, trends and category analysis.
+- [Power BI project](powerbi/olist_dashboard.pbip): three pages, five tables and 15 DAX measures.
+  [Open and refresh instructions](powerbi/BUILD_GUIDE.md).
+- [Validation results](docs/validation_results.json) and [review notes](docs/project_review.md).
+
+![Review scores by delivery lateness](notebooks/figures/review_vs_lateness.png)
+
+## Main findings
+
+| Question | What the analysis shows | Business use |
 |---|---|---|
-| 1 | **Late delivery is the biggest driver of bad reviews.** On-time orders average 4.29 stars; orders 8+ days late average 1.70, and 79% of them get 1-2 stars. | [SQL](sql/06_reviews.sql), [notebook §4](notebooks/olist_analysis.ipynb) |
-| 2 | **Lateness is regional and seasonal.** Late rates are 17.5% in MA, 13.8% in CE and 12.1% in RJ vs 4.5% in SP, and hit 19% in Mar 2018 after the holiday peak. | [SQL](sql/05_delivery.sql) |
-| 3 | **Almost nobody comes back.** 97% of customers order once, and fewer than 1% of any monthly cohort return in a later month. | [SQL](sql/04_customers.sql), [cohort chart](notebooks/figures/cohort_retention.png) |
-| 4 | **Growth stalled in 2018.** Monthly revenue grew ~8x through 2017 (Black Friday: +52% MoM) and then flattened at ~R$ 0.83-0.98M a month. | [SQL](sql/03_sales.sql) |
-| 5 | **Revenue is concentrated.** The top 10% of sellers earn 67% of revenue; 18 of 74 categories make up 80%. | [SQL](sql/08_sellers.sql), [Excel](excel/olist_summary.xlsx) |
-| 6 | **Installments lift basket size.** Credit-card payments in 7+ installments average R$ 332 vs R$ 96 for single payments. | [SQL](sql/07_payments.sql) |
+| How much was sold? | R$13.18M in delivered merchandise sales; average order value R$137.00. | Establish a consistent sales baseline. |
+| Where are delivery problems? | Overall late rate 6.8%; MA 17.5%, CE 13.8%, RJ 12.1%, SP 4.5% among states with 500+ orders. | Prioritise a regional delivery investigation, considering both volume and rate. |
+| How do reviews differ? | On-time orders average 4.29 stars; orders 8+ days late average 1.70. | Track promise reliability alongside satisfaction. This is an association, not a causal estimate. |
+| Do customers return? | About 3.0% of observed customers have more than one delivered order in the analysis window. | Test a second-purchase campaign, with a control group and equal follow-up time. |
+| What changed over time? | November 2017 sales were 52.4% above October; 2018 monthly sales ranged from R$0.83M to R$0.98M. | Review peak-period planning; the data does not isolate promotion effects. |
+| How concentrated are sales? | The highest-sales seller decile accounts for about 67% of merchandise sales. | Monitor high-volume sellers and avoid relying on averages alone. |
 
-## Recommendations
+Supporting queries are in [sales](sql/03_sales.sql), [customers](sql/04_customers.sql),
+[delivery](sql/05_delivery.sql), [reviews](sql/06_reviews.sql),
+[payments](sql/07_payments.sql) and [sellers](sql/08_sellers.sql).
 
-1. **Fix delivery promises where they break most.** Add carrier capacity or set more realistic
-   delivery estimates for the northeast and RJ. A missed promise costs far more stars than a longer one.
-2. **Plan logistics capacity before seasonal peaks** (Black Friday, post-holiday), when late rates triple.
-3. **Run a second-purchase campaign.** "New high-value" and "At risk high-value" customers are 30% of
-   customers and 58% of revenue but have bought only once.
-4. **Start a seller quality program** for high-volume sellers with low ratings ([list](sql/08_sellers.sql)).
+## What each tool contributes
 
-## Tools and what each one does here
-
-| Tool | Work |
+| Tool | Work demonstrated |
 |---|---|
-| **SQL** (SQLite) | Schema for 9 tables, cleaned views, 18 business queries with CTEs and window functions (LAG, NTILE, running totals), cohort retention and RFM in pure SQL |
-| **Python** (pandas, matplotlib) | Data quality checks, cleaning, RFM segmentation, cohort heatmap, charts, exports for Excel and Power BI |
-| **Excel** | Formula-driven dashboard (COUNTIFS / SUMIFS / AVERAGEIFS) with a state filter, monthly trend with MoM growth, state and category Pareto sheets, conditional formatting, charts |
-| **Power BI** | Star schema (2 facts, 3 dimensions), 15 DAX measures, 3-page dashboard: sales, delivery and satisfaction, customers |
+| SQL / SQLite | Joins, CTEs, cleaned views, window functions, monthly growth, cohort retention and customer segmentation. |
+| Python / pandas | Source profiling, order-level aggregation, independent reconciliation, RFM scoring and matplotlib charts. |
+| Excel | COUNTIFS, SUMIFS, AVERAGEIFS, state dropdown, monthly growth, Pareto analysis and charts. |
+| Power BI | Order/item model, single-direction relationships, Power Query CSV imports, DAX measures and three report pages. |
 
-## Repository structure
+The code uses common analyst tools. RFM and cohorts are explained in the notebook and
+[interview guide](docs/interview_guide.md); there is no machine learning model.
 
-```
-sql/
-  01_schema.sql          table definitions
-  02_clean_views.sql     cleaning rules as views (analysis window, delivered orders, category fixes)
-  03-08_*.sql            one file per business question
-notebooks/
-  olist_analysis.ipynb   Python analysis (rendered with outputs)
-  figures/               charts used in this README
-excel/olist_summary.xlsx Excel dashboard workbook
-powerbi/
-  measures.dax           DAX measures
-  BUILD_GUIDE.md         model, pages and expected numbers for the dashboard
-scripts/                 load_data, run_sql, build_notebook, build_excel, export_powerbi
-data/processed/sql_results/  CSV output of every SQL query
-```
+## Metric definitions and important limits
 
-## Data
+- **Revenue** means delivered merchandise sales: sum of item prices, excluding freight.
+  It is not profit or Olist's commission revenue. Currency is Brazilian reais (R$).
+- Orders must be delivered and have a recorded delivery timestamp. The same population
+  is used in SQL, Python, Excel and the Power BI sales measures.
+- Orders without items are excluded from the clean model. This means the clean model
+  must not be used to calculate an overall cancellation rate.
+- Customers use `customer_unique_id`; `customer_id` is an order-specific identifier.
+- Multiple source reviews for an order are averaged first. Review averages exclude
+  missing scores; bad-review share divides by reviewed orders only.
+- Late means delivery on a calendar date after the promised date. Delivery duration
+  uses elapsed days. These are different measures.
+- Item rows are aggregated before joining to payments or reviews, preventing inflated sales.
+  Category and seller review metrics count an order once within each category or seller.
+- Retention cohorts begin with the **first observed** delivered purchase in this window.
+  Unobserved future months are blank. Low repeat purchase does not establish churn.
+- RFM segments use the full window and are descriptive; they are not historical predictions.
+- This dataset has no store inventory, stockouts, product costs, margin, staffing or
+  promotion exposure. Those metrics cannot be inferred from sales alone.
 
+See the [data dictionary](docs/data_dictionary.md) for table grains and calculation rules.
+
+## Reproduce the analysis
+
+Tested locally with Python 3.12 and pandas 2.2. Download the nine CSVs from the
 [Brazilian E-Commerce Public Dataset by Olist](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce)
-on Kaggle: 9 related tables covering orders, items, payments, reviews, customers, sellers,
-products and geolocation. Raw files are not committed; download the zip and extract the CSVs into `data/raw/`.
+and extract them directly into `data/raw/`. Do not rename their columns.
 
-**Cleaning decisions** (see [02_clean_views.sql](sql/02_clean_views.sql)):
-- Analysis window is Jan 2017 - Aug 2018; 2016 and Sep-Oct 2018 have too few orders.
-- Revenue = item price of delivered orders, excluding freight.
-- 775 orders with no items are dropped; orders with several reviews use the average score.
-- 610 products without a category are labelled `unknown`; 2 untranslated categories are translated manually.
-- Customers are counted by `customer_unique_id`, because `customer_id` changes with every order.
-
-## Business questions
-
-1. **Sales:** How have revenue and orders trended? Which categories and states drive revenue?
-2. **Customers:** How many customers buy again? How do monthly cohorts retain? Who are the high-value customers?
-3. **Delivery:** How often are orders late versus the promised date, and where?
-4. **Satisfaction:** How does late delivery affect review scores? Which categories get the worst reviews?
-5. **Payments:** How do payment type and installments relate to order value?
-6. **Sellers:** How concentrated is seller revenue, and which sellers hurt customer experience?
-
-## How to reproduce
+From the repository root:
 
 ```bash
-pip install pandas matplotlib openpyxl
-python scripts/load_data.py        # data/raw/*.csv -> data/processed/olist.db
-python scripts/run_sql.py          # runs every query, saves results to data/processed/sql_results/
-python scripts/build_notebook.py   # executes the notebook and exports clean tables
-python scripts/build_excel.py      # builds excel/olist_summary.xlsx
-python scripts/export_powerbi.py   # star schema for Power BI (see powerbi/BUILD_GUIDE.md)
+python -m pip install -r requirements.txt
+python scripts/load_data.py
+python scripts/run_sql.py
+python scripts/build_notebook.py
+python scripts/build_excel.py
+python scripts/export_powerbi.py
+python scripts/build_powerbi_project.py
+python scripts/validate_project.py
+python scripts/validate_powerbi.py
+```
+
+`build_excel.py` is the original Python workbook builder; Excel calculates its formulas
+when opened. The existing workbook was preserved separately before review.
+`validate_powerbi.py` needs internet on its first run to retrieve Microsoft's schemas.
+The Power BI builder sets a local `DataFolder` parameter; regenerate after moving the
+repository or change that parameter in Desktop.
+
+**Verification boundary:** the SQL/Python/data-export checks and Power BI JSON schema
+checks run locally. Desktop report refresh, DAX execution and visual interactions still
+need checking in Power BI Desktop; schema validity alone does not prove them.
+See [review notes](docs/project_review.md) for the exact Excel and Desktop status.
+
+## Repository layout
+
+```text
+sql/                    schema, cleaned views and business queries
+scripts/                load, analyse, export, build and validate
+notebooks/              executed notebook and chart images
+excel/                  formula-driven summary workbook
+powerbi/                PBIP report, semantic model, DAX and opening guide
+docs/                   business summary, definitions, validation and interview notes
+data/raw/               source CSVs (excluded from Git)
+data/processed/          generated database/clean tables (large files excluded)
+data/processed/sql_results/  small query outputs included for review
 ```

@@ -1,0 +1,158 @@
+{
+  "checked_on": "2026-11-05",
+  "checks": [
+    {
+      "check": "Raw primary keys",
+      "passed": true,
+      "evidence": "orders, customers and order/item keys unique"
+    },
+    {
+      "check": "Order-item foreign keys",
+      "passed": true,
+      "evidence": "Every item has an order"
+    },
+    {
+      "check": "Order-customer foreign keys",
+      "passed": true,
+      "evidence": "Every order has a customer"
+    },
+    {
+      "check": "Review score range",
+      "passed": true,
+      "evidence": "All source scores are between 1 and 5"
+    },
+    {
+      "check": "Delivered population",
+      "passed": true,
+      "evidence": "96,203 orders"
+    },
+    {
+      "check": "One row per clean order",
+      "passed": true,
+      "evidence": "98,353 clean orders"
+    },
+    {
+      "check": "SQL / Python revenue",
+      "passed": true,
+      "evidence": "Order-level reconciliation"
+    },
+    {
+      "check": "SQL / Python freight",
+      "passed": true,
+      "evidence": "Order-level reconciliation"
+    },
+    {
+      "check": "SQL / Python review_score",
+      "passed": true,
+      "evidence": "Order-level reconciliation"
+    },
+    {
+      "check": "SQL / Python days_vs_estimate",
+      "passed": true,
+      "evidence": "Order-level reconciliation"
+    },
+    {
+      "check": "SQL / Python is_late",
+      "passed": true,
+      "evidence": "Order-level reconciliation"
+    },
+    {
+      "check": "Delivery duration rounding",
+      "passed": true,
+      "evidence": "SQL rounds to one decimal day"
+    },
+    {
+      "check": "Revenue source tie-out",
+      "passed": true,
+      "evidence": "R$ 13,179,777.95; freight excluded"
+    },
+    {
+      "check": "Analysis dates",
+      "passed": true,
+      "evidence": "Jan 2017 through Aug 2018"
+    },
+    {
+      "check": "Review missingness preserved",
+      "passed": true,
+      "evidence": "643 orders without source reviews remain missing"
+    },
+    {
+      "check": "RFM customer uniqueness",
+      "passed": true,
+      "evidence": "93,096 delivered customers"
+    },
+    {
+      "check": "RFM revenue reconciliation",
+      "passed": true,
+      "evidence": "Customer spend sums to delivered merchandise sales"
+    },
+    {
+      "check": "SQL / Python RFM segments",
+      "passed": true,
+      "evidence": "{'New high-value': 14487, 'At risk high-value': 14009, 'Hibernating': 40438, 'New low-value': 21373, 'Champions': 2126, 'Loyal': 663}"
+    },
+    {
+      "check": "Cohort rates and observation windows",
+      "passed": true,
+      "evidence": "All 80 SQL retention cells match pandas; future months stay blank"
+    },
+    {
+      "check": "Power BI delivered population",
+      "passed": true,
+      "evidence": "96,203 eligible orders"
+    },
+    {
+      "check": "Power BI customer relationship",
+      "passed": true,
+      "evidence": "Unique dimension; no orphan customer keys"
+    },
+    {
+      "check": "Power BI item relationship",
+      "passed": true,
+      "evidence": "One-to-many order/item relationship"
+    },
+    {
+      "check": "Power BI item sales",
+      "passed": true,
+      "evidence": "Category sales sum to order sales"
+    },
+    {
+      "check": "Power BI state keys",
+      "passed": true,
+      "evidence": "All state keys mapped"
+    },
+    {
+      "check": "Power BI date keys",
+      "passed": true,
+      "evidence": "All purchase dates mapped"
+    },
+    {
+      "check": "Published SQL KPI totals",
+      "passed": true,
+      "evidence": "{'orders': 96203.0, 'customers': 93096.0, 'revenue': 13179778.0, 'avg_order_value': 137.0, 'avg_review': 4.16, 'late_pct': 6.8}"
+    },
+    {
+      "check": "Category reviews use order grain",
+      "passed": true,
+      "evidence": "Independent pandas aggregation matches all reported categories"
+    },
+    {
+      "check": "Seller reviews use order grain",
+      "passed": true,
+      "evidence": "Independent pandas aggregation matches all reported sellers"
+    }
+  ],
+  "metrics": {
+    "orders": 96203,
+    "customers": 93096,
+    "revenue": 13179777.95,
+    "avg_order_value": 137.0,
+    "avg_review": 4.16,
+    "late_pct": 6.79,
+    "repeat_customer_pct": 3.0
+  },
+  "limitations": [
+    "Power BI Desktop DAX execution and rendering not verified: UI helper failed to initialize.",
+    "Excel native application checks are reported separately."
+  ]
+}

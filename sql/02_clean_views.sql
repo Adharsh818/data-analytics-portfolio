@@ -47,7 +47,7 @@ SELECT
     i.freight,
     r.review_score,
     ROUND(JULIANDAY(o.order_delivered_customer_date) - JULIANDAY(o.order_purchase_timestamp), 1) AS delivery_days,
-    CASE WHEN o.order_delivered_customer_date IS NULL THEN NULL
+    CASE WHEN o.order_delivered_customer_date IS NULL OR o.order_estimated_delivery_date IS NULL THEN NULL
          WHEN DATE(o.order_delivered_customer_date) > DATE(o.order_estimated_delivery_date) THEN 1
          ELSE 0 END AS is_late,
     CAST(JULIANDAY(DATE(o.order_delivered_customer_date))

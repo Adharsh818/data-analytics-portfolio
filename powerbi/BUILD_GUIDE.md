@@ -1,109 +1,99 @@
-# Power BI dashboard: build guide
+# Open and check the Power BI project
 
-A 3-page dashboard on the Olist star schema. Building it yourself takes about 1-2 hours and
-is worth it: interviewers often ask you to walk through how you modelled the data and wrote the DAX.
+The repository includes `olist_dashboard.pbip`, an `Olist.Report` folder and an
+`Olist.SemanticModel` folder. These are editable Power BI project files, not a PBIX.
+The report has Sales, Delivery and Customers pages, 30 visuals and 15 measures.
 
-## 1. Generate the data
+## Open and refresh
 
-```bash
-python scripts/load_data.py        # raw CSVs -> SQLite
-python scripts/build_notebook.py   # cleaning + analysis, exports clean tables
-python scripts/export_powerbi.py   # star schema -> data/processed/powerbi/
+1. Run the Python pipeline in the main README. If the generated CSVs already exist,
+   run `python scripts/build_powerbi_project.py` from the repository root. This sets
+   the local `DataFolder` parameter to the correct absolute path.
+2. Open `powerbi/olist_dashboard.pbip` in a current Power BI Desktop version supporting
+   PBIP and PBIR. Project support may require enabling the relevant preview feature.
+3. Refresh. If you moved the repository, use Transform data → Manage parameters to
+   set `DataFolder` to the full path of `data/processed/powerbi`, then apply and refresh.
+4. In Model view, confirm `dim_date` is marked as a date table with `date` as its key.
+5. Check the totals and filter tests below. Save a local PBIX if desired.
+
+No account sign-in or online publishing is necessary to review locally.
+
+## Model
+
+```text
+dim_date[date] -------------------< fact_orders[purchase_date]
+dim_state[state_code] -----------< fact_orders[customer_state]
+dim_customer[customer_unique_id]-< fact_orders[customer_unique_id]
+fact_orders[order_id] -----------< fact_order_items[order_id]
 ```
 
-## 2. Load the tables
+Relationships filter from the unique side to the many side. There is no direct date
+relationship to items: date filters reach items through orders. This prevents an
+ambiguous second filter path. It is an order/item model, with dimensions on orders.
 
-Power BI Desktop > **Get data > Text/CSV**, and load all five files from `data/processed/powerbi/`:
+The fact tables contain all statuses **among orders that have items**. `is_delivered=1`
+means delivered with a known delivery timestamp, matching SQL, Python and Excel.
+Do not calculate overall cancellation rate from this model: itemless orders were excluded.
+Category Revenue sums item prices; Total Revenue sums order totals.
 
-| Table | Grain | Key |
-|---|---|---|
-| `fact_orders` | one row per order (all statuses) | `order_id` |
-| `fact_order_items` | one row per item | `order_id` + `order_item_id` |
-| `dim_customer` | one row per customer, with RFM segment | `customer_unique_id` |
-| `dim_state` | 27 Brazilian states with region | `state_code` |
-| `dim_date` | one row per day, Jan 2017 - Aug 2018 | `date` |
+## Report pages
 
-In Power Query, check these types: `purchase_date` and `date` = Date; `revenue`, `price`,
-`freight` = Decimal; `is_late`, `is_delivered` = Whole number.
-
-## 3. Model (Model view)
-
-Create these relationships (all many-to-one, single direction):
-
-```
-fact_orders[purchase_date]      -> dim_date[date]
-fact_orders[customer_unique_id] -> dim_customer[customer_unique_id]
-fact_orders[customer_state]     -> dim_state[state_code]
-fact_order_items[order_id]      -> fact_orders[order_id]
-```
-
-Then:
-- Mark `dim_date` as a date table (Table tools > Mark as date table > `date`).
-- Sort `dim_date[month]` by `month_num` and `dim_date[weekday]` by `weekday_num`.
-- Set `dim_state[state_name]` data category to **State or Province** and `country` to **Country** (for the map).
-- Delete the auto-detected relationship from `fact_order_items[purchase_date]` if Power BI creates one.
-
-## 4. Measures
-
-Create a `_Measures` table (Home > Enter data > OK) and add every measure from
-[`measures.dax`](measures.dax). Format: revenue as currency R$ with 0 decimals, % measures as percentage.
-
-## 5. Pages
-
-Use one consistent look: white background, navy titles (#1F3A5F), one accent blue (#2563EB),
-red (#DC2626) only for "bad" things like late deliveries. Put slicers for **Year**, **Region**
-and **Payment type** on every page and sync them (View > Sync slicers).
-
-### Page 1: Sales Overview
-| Visual | Fields |
+| Page | Content |
 |---|---|
-| 4 cards | Total Revenue, Delivered Orders, Avg Order Value, Customers |
-| Line chart | X: `dim_date[year_month]`, Y: Total Revenue |
-| Bar chart (top 10) | Y: `fact_order_items[category]`, X: Category Revenue (Filters pane > Top N = 10) |
-| Filled map | Location: `dim_state[state_name]`, color saturation: Total Revenue |
-| Column chart | X: `dim_date[weekday]`, Y: Delivered Orders |
+| Sales | Revenue, delivered orders, AOV, customers; monthly sales; category and state sales. |
+| Delivery | Late rate, delivery duration, reviews, bad-review share; lateness buckets, state rates and monthly trend. |
+| Customers | Customers, repeat share, revenue, AOV; full-window RFM segments and monthly purchasing customers. |
 
-Title idea: "Revenue grew ~8x in 2017 and plateaued in 2018".
+Each page has synced purchase-year, state and largest-payment-type slicers.
+RFM segment labels remain fixed at the full-window snapshot. Repeat Customer % is
+recomputed within the selected context; it is not a fixed historical churn metric.
 
-### Page 2: Delivery & Satisfaction
-| Visual | Fields |
-|---|---|
-| 3 cards | Late Delivery %, Avg Delivery Days, Avg Review |
-| Column chart | X: `fact_orders[delivery_bucket]`, Y: Avg Review (data labels on) |
-| Bar chart | Y: `dim_state[state_code]`, X: Late Delivery % (sort descending) |
-| Line + column chart | X: `dim_date[year_month]`, columns: Delivered Orders, line: Late Delivery % |
+Selecting an item category does not propagate backwards to order KPIs with these
+single-direction relationships. Use the year/state/payment slicers for whole-report
+filtering. Category sales reconcile with order sales with no category selection.
+State late-rate charts include small states; compare eligible order volume before
+prioritising a state. SQL's state ranking intentionally requires at least 500 orders.
 
-Title idea: "Late orders lose up to 2.6 stars".
+## Check before sharing
 
-### Page 3: Customers
-| Visual | Fields |
-|---|---|
-| 2 cards | Repeat Customer %, Customers |
-| Donut | Legend: `dim_customer[segment]`, Values: Segment Customers |
-| Bar chart | Y: `dim_customer[segment]`, X: Segment Revenue Share |
-| Table | `dim_customer[segment]`, Segment Customers, Total Revenue, Avg Order Value |
-
-Title idea: "97% of customers buy only once".
-
-## 6. Check your numbers
-
-With no slicers applied, your cards should show:
+Clear slicers and selections. Expected totals:
 
 | Measure | Expected |
 |---|---|
-| Total Revenue | R$ 13,179,778 |
+| Total Revenue | R$13,179,777.95 (R$13,179,778 rounded) |
 | Delivered Orders | 96,203 |
-| Avg Order Value | R$ 137.00 |
+| Avg Order Value | R$137.00 |
 | Customers | 93,096 |
 | Avg Review | 4.16 |
 | Late Delivery % | 6.8% |
 | Repeat Customer % | 3.0% |
 
-If they match, the model is right.
+Then check:
 
-## 7. Save and publish
+- January 2017: 750 delivered orders and revenue R$111,798 rounded.
+- State SP: compare revenue and late rate against the SQL state outputs.
+- State + year + payment: cards and charts should respond together on all pages.
+- Segment customer counts should sum to Customers under the same slicers.
+- Bad Review % excludes blank review scores from both numerator and denominator.
+- Delivery buckets are ordered on-time, 1–3, 4–7, 8+ days late.
+- Clear all selections and confirm the baseline returns.
+- Inspect all pages for clipping and working visuals, then save and reopen.
 
-- Save as `powerbi/olist_dashboard.pbix`.
-- Export each page as an image (File > Export > PDF, or screenshot) into `powerbi/screenshots/`
-  so the README can show it to recruiters who don't have Power BI.
-- Optional: publish to the Power BI service and add the public link to the README.
+Export authentic Desktop page screenshots into `powerbi/screenshots/` after passing
+these checks. The notebook charts are available for immediate viewing, but are not
+Power BI screenshots.
+
+## Validation status and format references
+
+All 39 report/project JSON definitions passed `python scripts/validate_powerbi.py`.
+The data exports reconcile to SQL/pandas. **Power Query refresh, DAX evaluation,
+visual rendering and interactions have not been verified in Desktop** because the
+desktop automation helper failed to initialize. Complete the checks above before
+claiming a fully tested Power BI dashboard.
+
+The public schemas validate the file structure, not visual role semantics or DAX results.
+`model.bim` is a semantic model definition and is not included in PBIR schema validation.
+
+- [Microsoft PBIP overview](https://learn.microsoft.com/en-us/power-bi/developer/projects/projects-overview)
+- [Report folder and PBIR format](https://learn.microsoft.com/en-us/power-bi/developer/projects/projects-report)
+- [Microsoft JSON schemas](https://github.com/microsoft/json-schemas/tree/main/fabric)

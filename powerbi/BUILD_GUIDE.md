@@ -2,11 +2,11 @@
 
 The repository includes `olist_dashboard.pbip`, an `Olist.Report` folder and an
 `Olist.SemanticModel` folder. These are editable Power BI project files, not a PBIX.
-The report has Sales, Delivery and Customers pages, 30 visuals and 15 measures.
+The report has Sales, Delivery and Customers pages, 30 visuals and 14 measures.
 
 ## Open and refresh
 
-The [Power BI download](https://github.com/Adharsh818/data-analytics-portfolio/releases/download/portfolio-v1/olist_powerbi_dashboard.zip)
+The [Power BI download](https://github.com/Adharsh818/data-analytics-portfolio/releases/download/portfolio-v1.1/olist_powerbi_dashboard.zip)
 includes the five prepared data tables, so you can open it without rebuilding the analysis.
 Extract the ZIP, open `powerbi/olist_dashboard.pbip`, set `DataFolder` to the extracted
 `data/processed/powerbi` folder under Transform data → Manage parameters, then apply

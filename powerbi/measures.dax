@@ -1,5 +1,6 @@
 // Olist dashboard DAX measures
-// Create a blank table called _Measures (Home > Enter data > OK) and add each measure to it.
+// The project generator stores these measures on fact_orders.
+// For a manual build, they can also be created in a dedicated _Measures table.
 // Revenue and delivery measures count delivered orders only, matching the SQL and Python analysis.
 
 // ---------- Sales ----------

@@ -11,6 +11,9 @@ merchandise sales. Sales exclude freight. Validation was run on 5 November 2026.
   windows, category/seller review averages and Power BI export relationships.
 - Validated 39 PBIP/PBIR files against Microsoft's public JSON schemas and checked
   that report field references and the four relationships point to model fields.
+- On 6 November, corrected a DAX-header parsing error that treated `VAR cust` as a
+  separate measure. The generator now retains the complete Repeat Customer % body;
+  regression checks verify 14 nonempty business measures and its VAR/RETURN expression.
 - Compared the Excel source-order data against pandas, including IDs, revenue,
   freight, review scores and late flags. Checked all 20 monthly and 27 state summaries.
 - Preserved the workbook's charts, tables and state dropdown. The revised review-share

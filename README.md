@@ -16,8 +16,8 @@ and understand customer purchasing behaviour?
 
 | Deliverable | Direct link | What you can explore |
 |---|---|---|
-| **Excel dashboard** | [Download Excel workbook](https://github.com/Adharsh818/data-analytics-portfolio/releases/download/portfolio-v1/olist_summary_reviewed.xlsx) | Sales KPIs with a state selector, monthly growth, delivery reviews and category Pareto analysis. |
-| **Power BI dashboard** | [Download Power BI package](https://github.com/Adharsh818/data-analytics-portfolio/releases/download/portfolio-v1/olist_powerbi_dashboard.zip) · [Opening guide](powerbi/BUILD_GUIDE.md) | Three report pages: Sales Overview, Delivery & Reviews, and Customer Purchasing. Includes the project files and five prepared data tables. |
+| **Excel dashboard** | [Download Excel workbook](https://github.com/Adharsh818/data-analytics-portfolio/releases/download/portfolio-v1.1/olist_summary_reviewed.xlsx) | Sales KPIs with a state selector, monthly growth, delivery reviews and category Pareto analysis. |
+| **Power BI dashboard** | [Download Power BI package](https://github.com/Adharsh818/data-analytics-portfolio/releases/download/portfolio-v1.1/olist_powerbi_dashboard.zip) · [Opening guide](powerbi/BUILD_GUIDE.md) | Three report pages: Sales Overview, Delivery & Reviews, and Customer Purchasing. Includes the project files and five prepared data tables. |
 | **Python analysis** | [View executed notebook](notebooks/olist_analysis.ipynb) | Cleaning decisions, exploratory analysis, customer segments and cohort retention, with saved outputs. |
 | **Business summary** | [Read findings and proposed actions](docs/business_summary.md) | A short explanation of the main findings, their limits and the next business questions. |
 | **SQL analysis** | [Explore SQL queries](sql/) | Sales, customers, delivery, reviews, payments and sellers. |
@@ -76,7 +76,7 @@ the Excel and Power BI versions.
 | **SQL / SQLite** | Joined related tables, built clean views, used CTEs and window functions, and calculated monthly growth, customer cohorts and RFM segments. |
 | **Python / pandas** | Profiled source data, handled missing values, aggregated transactions, reconciled SQL results and created matplotlib charts. |
 | **Excel** | Used COUNTIFS, SUMIFS and AVERAGEIFS for KPIs, a state dropdown, monthly growth, category Pareto analysis and charts. |
-| **Power BI** | Defined an order/item model, relationships, Power Query imports and 15 DAX measures across three report pages. |
+| **Power BI** | Defined an order/item model, relationships, Power Query imports and 14 DAX measures across three report pages. |
 
 ## Data decisions and learning takeaways
 

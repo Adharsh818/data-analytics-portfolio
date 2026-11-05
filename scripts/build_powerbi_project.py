@@ -107,11 +107,14 @@ def main():
             tables[-1]['dataCategory'] = 'Time'
 
     dax = re.sub(r'//[^\n]*', '', (OUT / 'measures.dax').read_text(encoding='utf-8'))
-    matches = list(re.finditer(r'^([A-Za-z][A-Za-z0-9 %]+)\s*=\s*$', dax, re.M))
+    # VAR declarations belong inside the preceding measure; they are not measures.
+    matches = list(re.finditer(r'^(?!VAR\b)([A-Za-z][A-Za-z0-9 %]+)[ \t]*=[ \t]*$', dax, re.M | re.I))
     measures = []
     for i, match in enumerate(matches):
         name = match.group(1).strip()
         expr = dax[match.end(): matches[i+1].start() if i+1<len(matches) else len(dax)].strip()
+        if not expr:
+            raise ValueError(f'Empty DAX expression for measure: {name}')
         fmt = '0.0%' if '%' in name or 'Share' in name else ('#,0.00' if name in {'Avg Review','Avg Order Value'} else '#,0.0' if name == 'Avg Delivery Days' else '#,0')
         if name in {'Total Revenue','Category Revenue','Revenue Prev Month','Avg Order Value'}:
             fmt = '"R$ "' + fmt

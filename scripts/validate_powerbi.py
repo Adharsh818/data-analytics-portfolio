@@ -44,6 +44,13 @@ def main():
     print(f'PASS: {count} PBIP/PBIR files conform to Microsoft JSON schemas.')
     model=json.loads((ROOT/'powerbi/Olist.SemanticModel/model.bim').read_text(encoding='utf-8'))['model']
     tables={t['name']:t for t in model['tables']}
+    measures={m['name']:m for t in tables.values() for m in t.get('measures',[])}
+    assert len(measures)==14, 'Expected the 14 declared business measures'
+    assert not any(name.upper().startswith('VAR ') for name in measures), 'A DAX variable was parsed as a measure'
+    assert all(m['expression'] for m in measures.values()), 'A measure has no expression'
+    repeat='\n'.join(measures['Repeat Customer %']['expression'])
+    assert 'VAR cust =' in repeat and 'RETURN' in repeat, 'Repeat measure lost its variable or RETURN body'
+    print('PASS: 14 nonempty DAX measures; Repeat Customer % retains its complete VAR/RETURN expression.')
     fields={name:{c['name'] for c in table['columns']} | {m['name'] for m in table.get('measures',[])}
             for name,table in tables.items()}
     for relation in model['relationships']:

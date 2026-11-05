@@ -217,20 +217,16 @@
           },
           {
             "name": "Repeat Customer %",
-            "expression": [],
-            "formatString": "0.0%"
-          },
-          {
-            "name": "VAR cust",
             "expression": [
-              "CALCULATETABLE (",
+              "VAR cust =",
+              "    CALCULATETABLE (",
               "        SUMMARIZE ( fact_orders, fact_orders[customer_unique_id], \"n\", COUNTROWS ( fact_orders ) ),",
               "        fact_orders[is_delivered] = 1",
               "    )",
               "RETURN",
               "    DIVIDE ( COUNTROWS ( FILTER ( cust, [n] > 1 ) ), COUNTROWS ( cust ) )"
             ],
-            "formatString": "#,0"
+            "formatString": "0.0%"
           },
           {
             "name": "Segment Customers",
